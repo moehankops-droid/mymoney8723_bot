@@ -55,6 +55,7 @@
             padding: 8px 0;
             font-size: 14px;
             cursor: pointer;
+            position: relative;
             transition: 0.2s;
         }
         .day-box.saved {
@@ -63,13 +64,69 @@
             color: white;
             font-weight: bold;
         }
+        .day-box.has-note::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 6px;
+            height: 6px;
+            background-color: #ff9800;
+            border-radius: 50%;
+        }
+
+        /* Modal Popup Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            width: 85%;
+            max-width: 320px;
+            border: 1px solid #444;
+            text-align: left;
+        }
+        .modal-content textarea {
+            width: 100%;
+            height: 80px;
+            background-color: #2c2c2c;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 10px;
+            box-sizing: border-box;
+            resize: none;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .modal-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-save { background-color: #2e7d32; color: white; }
+        .btn-close { background-color: #555; color: white; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>💰 Nono Money စုငွေစာရင်း</h2>
-        <p style="font-size: 13px; color: #aaa;">တစ်ရက် = ၁,၀၀၀ ကျပ်</p>
+        <p style="font-size: 13px; color: #aaa;">တစ်ရက် = ၁,၀၀၀ ကျပ် | ရက်ကိုနှိပ်၍ ငွေစုရန် & မှတ်စုရေးရန်</p>
     </div>
 
     <!-- လအလိုက် ရွေးချယ်ရန် -->
@@ -87,8 +144,23 @@
 
     <div class="card">
         <h3 id="calendar-title">📅 ကယ်လင်ဒါ</h3>
-        <p style="font-size: 12px; color: #aaa;">စုပြီးသောရက်များကို နှိပ်ပါ</p>
+        <p style="font-size: 12px; color: #aaa;">ရက်ကွက်များကို နှိပ်၍ ငွေစုခြင်းနှင့် မှတ်စုများ (ရုံးပိတ်ရက် စသည်) ထည့်နိုင်သည်</p>
         <div class="calendar-grid" id="calendar"></div>
+    </div>
+
+    <!-- Note Modal Popup -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <h3 id="modal-title" style="margin-top: 0; font-size: 18px;">ရက်စွဲ မှတ်စု</h3>
+            <label style="font-size: 13px; color: #ccc;">
+                <input type="checkbox" id="modal-money-checkbox"> 💰 ဤရက်တွင် ငွေ 1,000 ကျပ် စုမည်
+            </label>
+            <textarea id="modal-note-text" placeholder="ဥပမာ - ရုံးပိတ်ရက်၊ အလုပ်သွားရန် စသည်..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-close" onclick="closeModal()">ပိတ်မည်</button>
+                <button class="btn-save" onclick="saveModalData()">သိမ်းမည်</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -107,16 +179,16 @@
             { name: "December", days: 31 }
         ];
 
-        // localStorage ထဲကနေ နောက်ဆုံးကြည့်ခဲ့တဲ့ လကို ပြန်ဖတ်မယ် (မရှိရင် 0 လို့ ယူမယ်)
         let currentMonthIndex = parseInt(localStorage.getItem('nonoCurrentMonth')) || 0;
         let savedData = JSON.parse(localStorage.getItem('nonoMoneyData')) || {};
+        let notesData = JSON.parse(localStorage.getItem('nonoNotesData')) || {};
+
+        let activeDayForModal = null;
 
         function changeMonth(direction) {
             currentMonthIndex += direction;
             if (currentMonthIndex < 0) currentMonthIndex = 11;
             if (currentMonthIndex > 11) currentMonthIndex = 0;
-            
-            // ရွေးလိုက်တဲ့ လကို မှတ်ထားမယ်
             localStorage.setItem('nonoCurrentMonth', currentMonthIndex);
             renderCalendar();
         }
@@ -130,11 +202,12 @@
             calendarEl.innerHTML = '';
 
             let monthKey = monthObj.name;
-            if (!savedData[monthKey]) {
-                savedData[monthKey] = [];
-            }
+            if (!savedData[monthKey]) savedData[monthKey] = [];
+            if (!notesData[monthKey]) notesData[monthKey] = {};
 
             let currentMonthSaved = savedData[monthKey];
+            let currentMonthNotes = notesData[monthKey];
+
             let currentTotalMoney = currentMonthSaved.length * 1000;
             let activeDaysCount = currentMonthSaved.length;
 
@@ -147,8 +220,13 @@
                     dayBox.classList.add('saved');
                 }
 
+                // အကယ်၍ မှတ်စုရှိရင် အစက်လေးပြမယ်
+                if (currentMonthNotes[i] && currentMonthNotes[i].trim() !== "") {
+                    dayBox.classList.add('has-note');
+                }
+
                 dayBox.onclick = function() {
-                    toggleDay(monthKey, i);
+                    openModal(monthKey, i);
                 };
 
                 calendarEl.appendChild(dayBox);
@@ -158,19 +236,52 @@
             document.getElementById("total-days").innerText = activeDaysCount;
         }
 
-        function toggleDay(monthKey, day) {
-            let monthSaved = savedData[monthKey];
-            const index = monthSaved.indexOf(day);
-            if (index > -1) {
-                monthSaved.splice(index, 1);
-            } else {
-                monthSaved.push(day);
-            }
-            localStorage.setItem('nonoMoneyData', JSON.stringify(savedData));
-            renderCalendar();
+        function openModal(monthKey, day) {
+            activeDayForModal = { monthKey, day };
+            const monthSaved = savedData[monthKey];
+            const monthNotes = notesData[monthKey] || {};
+
+            document.getElementById("modal-title").innerText = `${monthKey} လ၊ ရက်စွဲ (${day})`;
+            document.getElementById("modal-money-checkbox").checked = monthSaved.includes(day);
+            document.getElementById("modal-note-text").value = monthNotes[day] || "";
+
+            document.getElementById("noteModal").style.display = "flex";
         }
 
-        renderCalendar();
+        function closeModal() {
+            document.getElementById("noteModal").style.display = "none";
+        }
+
+        function saveModalData() {
+            if (!activeDayForModal) return;
+            const { monthKey, day } = activeDayForModal;
+
+            const isChecked = document.getElementById("modal-money-checkbox").checked;
+            const noteText = document.getElementById("modal-note-text").value;
+
+            // ငွေစုစာရင်း update လုပ်ရန်
+            let monthSaved = savedData[monthKey];
+            const index = monthSaved.indexOf(day);
+            if (isChecked && index === -1) {
+                monthSaved.push(day);
+            } else if (!isChecked && index > -1) {
+                monthSaved.splice(index, 1);
+            }
+
+            // မှတ်စု update လုပ်ရန်
+            if (!notesData[monthKey]) notesData[monthKey] = {};
+            if (noteText.trim() !== "") {
+                notesData[monthKey][day] = noteText;
+            } else {
+                delete notesData[monthKey][day];
+            }
+
+            localStorage.setItem('nonoMoneyData', JSON.stringify(savedData));
+            localStorage.setItem('nonoNotesData', JSON.stringify(notesData));
+
+            closeModal();
+            renderCalendar();
+        }
     </script>
 
 </body>
