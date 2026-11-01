@@ -22,6 +22,26 @@
         }
         h2 { margin-top: 0; font-size: 20px; }
         h1 { font-size: 26px; margin: 10px 0; }
+        
+        .month-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2c2c2c;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .month-selector button {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -43,64 +63,88 @@
             color: white;
             font-weight: bold;
         }
-        .btn {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>💰 Nono Money စုငွေစာရင်း</h2>
-        <p style="font-size: 13px; color: #aaa;">တစ်ရက် = ၁,၀၀၀ ကျပ် | ၁ လ (၃၁ ရက်) = ၃၁,၀၀၀ ကျပ်</p>
+        <p style="font-size: 13px; color: #aaa;">တစ်ရက် = ၁,၀၀၀ ကျပ်</p>
     </div>
 
+    <!-- လအလိုက် ရွေးချယ်ရန် -->
     <div class="card">
-        <h3>ယခုစုပြီးသား ပမာဏ</h3>
-        <h1 id="total-savings" style="color: #4CAF50;">0 ကျပ်</h1>
-        <p>စုစုပေါင်း ရက်: <span id="total-days">0</span> / 31 ရက်</p>
-    </div>
-
-    <div class="card">
-        <h3>📅 ၃၁ ရက်တာ ကယ်လင်ဒါ</h3>
-        <p style="font-size: 12px; color: #aaa;">စုပြီးသောရက်များကို နှိပ်၍ အမှန်ခြစ်နိုင်ပါသည်</p>
-        <div class="calendar-grid" id="calendar">
-            <!-- JavaScript ဖြင့် ရက် ၃၁ ရက် အလိုအလျောက် ထည့်ပေးမည် -->
+        <div class="month-selector">
+            <button onclick="changeMonth(-1)">◀ ပြီးခဲ့သော</button>
+            <h3 id="current-month-title" style="margin: 0;">January</h3>
+            <button onclick="changeMonth(1)">နောက်လာမည့် ▶</button>
         </div>
+
+        <h3>ယခုလ စုပြီးသား ပမာဏ</h3>
+        <h1 id="total-savings" style="color: #4CAF50;">0 ကျပ်</h1>
+        <p>စုစုပေါင်း ရက်: <span id="total-days">0</span> ရက်</p>
+    </div>
+
+    <div class="card">
+        <h3 id="calendar-title">📅 ကယ်လင်ဒါ</h3>
+        <p style="font-size: 12px; color: #aaa;">စုပြီးသောရက်များကို နှိပ်ပါ</p>
+        <div class="calendar-grid" id="calendar"></div>
     </div>
 
     <script>
-        let totalDays = 31;
-        let savedDays = JSON.parse(localStorage.getItem('savedDays')) || [];
+        const months = [
+            { name: "January", days: 31 },
+            { name: "February", days: 28 },
+            { name: "March", days: 31 },
+            { name: "April", days: 30 },
+            { name: "May", days: 31 },
+            { name: "June", days: 30 },
+            { name: "July", days: 31 },
+            { name: "August", days: 31 },
+            { name: "September", days: 30 },
+            { name: "October", days: 31 },
+            { name: "November", days: 30 },
+            { name: "December", days: 31 }
+        ];
+
+        let currentMonthIndex = 0; // 0 က January ကနေစမယ်
+        let savedData = JSON.parse(localStorage.getItem('nonoMoneyData')) || {};
+
+        function changeMonth(direction) {
+            currentMonthIndex += direction;
+            if (currentMonthIndex < 0) currentMonthIndex = 11;
+            if (currentMonthIndex > 11) currentMonthIndex = 0;
+            renderCalendar();
+        }
 
         function renderCalendar() {
+            const monthObj = months[currentMonthIndex];
+            document.getElementById("current-month-title").innerText = monthObj.name;
+            document.getElementById("calendar-title").innerText = `📅 ${monthObj.name} ကယ်လင်ဒါ`;
+
             const calendarEl = document.getElementById('calendar');
             calendarEl.innerHTML = '';
-            
-            let currentTotalMoney = 0;
-            let activeDaysCount = 0;
 
-            for (let i = 1; i <= totalDays; i++) {
+            let monthKey = monthObj.name;
+            if (!savedData[monthKey]) {
+                savedData[monthKey] = [];
+            }
+
+            let currentMonthSaved = savedData[monthKey];
+            let currentTotalMoney = currentMonthSaved.length * 1000;
+            let activeDaysCount = currentMonthSaved.length;
+
+            for (let i = 1; i <= monthObj.days; i++) {
                 const dayBox = document.createElement('div');
                 dayBox.classList.add('day-box');
                 dayBox.innerText = i;
 
-                if (savedDays.includes(i)) {
+                if (currentMonthSaved.includes(i)) {
                     dayBox.classList.add('saved');
-                    currentTotalMoney += 1000;
-                    activeDaysCount += 1;
                 }
 
                 dayBox.onclick = function() {
-                    toggleDay(i);
+                    toggleDay(monthKey, i);
                 };
 
                 calendarEl.appendChild(dayBox);
@@ -110,14 +154,15 @@
             document.getElementById("total-days").innerText = activeDaysCount;
         }
 
-        function toggleDay(day) {
-            const index = savedDays.indexOf(day);
+        function toggleDay(monthKey, day) {
+            let monthSaved = savedData[monthKey];
+            const index = monthSaved.indexOf(day);
             if (index > -1) {
-                savedDays.splice(index, 1);
+                monthSaved.splice(index, 1);
             } else {
-                savedDays.push(day);
+                monthSaved.push(day);
             }
-            localStorage.setItem('savedDays', JSON.stringify(savedDays));
+            localStorage.setItem('nonoMoneyData', JSON.stringify(savedData));
             renderCalendar();
         }
 
