@@ -9,25 +9,50 @@
             background-color: #121212;
             color: #ffffff;
             font-family: sans-serif;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
+            margin: 0;
         }
         .card {
             background-color: #1e1e1e;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             border: 1px solid #2e7d32;
+        }
+        h2 { margin-top: 0; font-size: 20px; }
+        h1 { font-size: 26px; margin: 10px 0; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-top: 10px;
+        }
+        .day-box {
+            background-color: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 8px 0;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .day-box.saved {
+            background-color: #2e7d32;
+            border-color: #4CAF50;
+            color: white;
+            font-weight: bold;
         }
         .btn {
             background-color: #2e7d32;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 12px;
             border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             width: 100%;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -35,7 +60,7 @@
 
     <div class="card">
         <h2>💰 Nono Money စုငွေစာရင်း</h2>
-        <p>တစ်ရက် = ၁,၀၀၀ ကျပ် | ၁ လ (၃၁ ရက်) = ၃၁,၀၀০ ကျပ်</p>
+        <p style="font-size: 13px; color: #aaa;">တစ်ရက် = ၁,၀၀၀ ကျပ် | ၁ လ (၃၁ ရက်) = ၃၁,၀၀၀ ကျပ်</p>
     </div>
 
     <div class="card">
@@ -45,23 +70,58 @@
     </div>
 
     <div class="card">
-        <button class="btn" onclick="addMoney()">➕ ၁ ရက်စာ (၁၀၀၀ ကျပ်) ထည့်မည်</button>
+        <h3>📅 ၃၁ ရက်တာ ကယ်လင်ဒါ</h3>
+        <p style="font-size: 12px; color: #aaa;">စုပြီးသောရက်များကို နှိပ်၍ အမှန်ခြစ်နိုင်ပါသည်</p>
+        <div class="calendar-grid" id="calendar">
+            <!-- JavaScript ဖြင့် ရက် ၃၁ ရက် အလိုအလျောက် ထည့်ပေးမည် -->
+        </div>
     </div>
 
     <script>
-        let savings = 0;
-        let days = 0;
+        let totalDays = 31;
+        let savedDays = JSON.parse(localStorage.getItem('savedDays')) || [];
 
-        function addMoney() {
-            if (days < 31) {
-                savings += 1000;
-                days += 1;
-                document.getElementById("total-savings").innerText = savings.toLocaleString() + " ကျပ်";
-                document.getElementById("total-days").innerText = days;
-            } else {
-                alert("တစ်လအတွက် စုငွေပန်းတိုင် အပြည့်ရောက်ပါပြီ!");
+        function renderCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            calendarEl.innerHTML = '';
+            
+            let currentTotalMoney = 0;
+            let activeDaysCount = 0;
+
+            for (let i = 1; i <= totalDays; i++) {
+                const dayBox = document.createElement('div');
+                dayBox.classList.add('day-box');
+                dayBox.innerText = i;
+
+                if (savedDays.includes(i)) {
+                    dayBox.classList.add('saved');
+                    currentTotalMoney += 1000;
+                    activeDaysCount += 1;
+                }
+
+                dayBox.onclick = function() {
+                    toggleDay(i);
+                };
+
+                calendarEl.appendChild(dayBox);
             }
+
+            document.getElementById("total-savings").innerText = currentTotalMoney.toLocaleString() + " ကျပ်";
+            document.getElementById("total-days").innerText = activeDaysCount;
         }
+
+        function toggleDay(day) {
+            const index = savedDays.indexOf(day);
+            if (index > -1) {
+                savedDays.splice(index, 1);
+            } else {
+                savedDays.push(day);
+            }
+            localStorage.setItem('savedDays', JSON.stringify(savedDays));
+            renderCalendar();
+        }
+
+        renderCalendar();
     </script>
 
 </body>
