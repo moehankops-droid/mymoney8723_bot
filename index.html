@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nono Money Tracker</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        .card {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #2e7d32;
+        }
+        .btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>💰 Nono Money စုငွေစာရင်း</h2>
+        <p>တစ်ရက် = ၁,၀၀၀ ကျပ် | ၁ လ (၃၁ ရက်) = ၃၁,၀၀০ ကျပ်</p>
+    </div>
+
+    <div class="card">
+        <h3>ယခုစုပြီးသား ပမာဏ</h3>
+        <h1 id="total-savings" style="color: #4CAF50;">0 ကျပ်</h1>
+        <p>စုစုပေါင်း ရက်: <span id="total-days">0</span> / 31 ရက်</p>
+    </div>
+
+    <div class="card">
+        <button class="btn" onclick="addMoney()">➕ ၁ ရက်စာ (၁၀၀၀ ကျပ်) ထည့်မည်</button>
+    </div>
+
+    <script>
+        let savings = 0;
+        let days = 0;
+
+        function addMoney() {
+            if (days < 31) {
+                savings += 1000;
+                days += 1;
+                document.getElementById("total-savings").innerText = savings.toLocaleString() + " ကျပ်";
+                document.getElementById("total-days").innerText = days;
+            } else {
+                alert("တစ်လအတွက် စုငွေပန်းတိုင် အပြည့်ရောက်ပါပြီ!");
+            }
+        }
+    </script>
+
+</body>
+</html>
