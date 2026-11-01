@@ -107,13 +107,17 @@
             { name: "December", days: 31 }
         ];
 
-        let currentMonthIndex = 0; // 0 က January ကနေစမယ်
+        // localStorage ထဲကနေ နောက်ဆုံးကြည့်ခဲ့တဲ့ လကို ပြန်ဖတ်မယ် (မရှိရင် 0 လို့ ယူမယ်)
+        let currentMonthIndex = parseInt(localStorage.getItem('nonoCurrentMonth')) || 0;
         let savedData = JSON.parse(localStorage.getItem('nonoMoneyData')) || {};
 
         function changeMonth(direction) {
             currentMonthIndex += direction;
             if (currentMonthIndex < 0) currentMonthIndex = 11;
             if (currentMonthIndex > 11) currentMonthIndex = 0;
+            
+            // ရွေးလိုက်တဲ့ လကို မှတ်ထားမယ်
+            localStorage.setItem('nonoCurrentMonth', currentMonthIndex);
             renderCalendar();
         }
 
