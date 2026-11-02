@@ -143,7 +143,7 @@
 
     <div class="card">
         <h2>💰 Nono Money & Business Tracker</h2>
-        <p style="font-size: 12px; color: #aaa;">ကိုယ့်စုငွေနှင့် မိသားစု ကြက်ဥစီးပွားရေး သီးသန့်ခွဲခြားစာရင်း</p>
+        <p style="font-size: 12px; color: #aaa;">ကိုယ့်စုငွေနှင့် မိသားစု ကြက်ဥစီးပွားရေး စာရင်း</p>
     </div>
 
     <!-- လအလိုက် ရွေးချယ်ရန် -->
@@ -180,10 +180,8 @@
             
             <label style="font-size: 12px; color: #ccc;">📂 အမျိုးအစား ခွဲမည်</label>
             <select id="modal-category">
-                <option value="personal">⭐ ကိုယ့်ရဲ့ စုငွေ/ရင်းနှီးငွေ (၁ သိန်းထဲမှ)</option>
-                <option value="family_s1">🥚 ကြက်ဥ အရောင်း (ဆိုဒ် ၁)</option>
-                <option value="family_s2">🥚 ကြက်ဥ အရောင်း (ဆိုဒ် ၂)</option>
-                <option value="family_s3">🥚 ကြက်ဥ အရောင်း (ဆိုဒ် ၃)</option>
+                <option value="personal">⭐ ကိုယ့်ရဲ့ စုငွေ/ရင်းနှီးငွေ</option>
+                <option value="family">🥚 မိသားစု ကြက်ဥအရောင်း</option>
             </select>
 
             <label style="font-size: 12px; color: #ccc; display: block; margin-top: 8px;">💰 ငွေပမာဏ (ကျပ်)</label>
@@ -210,7 +208,6 @@
         ];
 
         let currentMonthIndex = parseInt(localStorage.getItem('nonoCurrentMonth')) || 0;
-        // ဒေတာများကို အမျိုးအစားအလိုက် သိမ်းဆည်းရန်
         let transactionsData = JSON.parse(localStorage.getItem('nonoTransactionsData')) || {};
         let activeDayForModal = null;
 
@@ -276,7 +273,6 @@
             activeDayForModal = { monthKey, day };
             document.getElementById("modal-title").innerText = `${monthKey} လ၊ ရက်စွဲ (${day}) စာရင်း`;
             
-            // ပထမဆုံး စာရင်းကိုပြရန် သို့မဟုတ် အသစ်ထည့်ရန် ရှင်းထုတ်မည်
             document.getElementById("modal-amount-input").value = "";
             document.getElementById("modal-note-text").value = "";
             document.getElementById("modal-category").value = "personal";
@@ -304,7 +300,6 @@
             if (!transactionsData[monthKey]) transactionsData[monthKey] = {};
             if (!transactionsData[monthKey][day]) transactionsData[monthKey][day] = [];
 
-            // ယင်းနေ့အတွက် အသစ်ထည့်လိုက်သော ငွေစာရင်းကို သိမ်းမည်
             transactionsData[monthKey][day].push({
                 category: category,
                 amount: amountVal,
