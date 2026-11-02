@@ -21,7 +21,7 @@
             border: 1px solid #2e7d32;
         }
         h2 { margin-top: 0; font-size: 20px; }
-        h1 { font-size: 22px; margin: 8px 0; }
+        h1 { font-size: 18px; margin: 8px 0; }
         
         .month-selector {
             display: flex;
@@ -44,13 +44,13 @@
 
         .summary-box {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 12px;
         }
         .summary-card {
             flex: 1;
             background-color: #1e1e1e;
-            padding: 12px;
+            padding: 10px;
             border-radius: 12px;
             border: 1px solid #444;
             text-align: center;
@@ -143,7 +143,7 @@
 
     <div class="card">
         <h2>💰 Nono Money & Business Tracker</h2>
-        <p style="font-size: 12px; color: #aaa;">ကိုယ့်စုငွေနှင့် မိသားစု ကြက်ဥစီးပွားရေး စာရင်း</p>
+        <p style="font-size: 12px; color: #aaa;">ကိုယ့်စုငွေ၊ မိသားစုငွေနှင့် အမြတ်ငွေစာရင်း</p>
     </div>
 
     <!-- လအလိုက် ရွေးချယ်ရန် -->
@@ -155,15 +155,19 @@
         </div>
     </div>
 
-    <!-- သီးသန့် စုစုပေါင်းပြရန် ကတ်ပြားများ -->
+    <!-- သီးသန့် စုစုပေါင်းပြရန် ကတ်ပြားများ (၃ ခု) -->
     <div class="summary-box">
         <div class="summary-card">
-            <p style="font-size: 12px; color: #aaa; margin:0;">⭐ ကိုယ့်စုငွေ/ရင်းနှီး</p>
-            <h1 id="my-total" style="color: #4CAF50; font-size: 18px;">0 ကျပ်</h1>
+            <p style="font-size: 10px; color: #aaa; margin:0;">⭐ ရင်းနှီးငွေ</p>
+            <h1 id="my-total" style="color: #4CAF50; font-size: 14px;">0 ကျပ်</h1>
         </div>
         <div class="summary-card">
-            <p style="font-size: 12px; color: #aaa; margin:0;">🥚 မိသားစု ကြက်ဥငွေ</p>
-            <h1 id="family-total" style="color: #ff9800; font-size: 18px;">0 ကျပ်</h1>
+            <p style="font-size: 10px; color: #aaa; margin:0;">🥚 မိသားစုငွေ</p>
+            <h1 id="family-total" style="color: #ff9800; font-size: 14px;">0 ကျပ်</h1>
+        </div>
+        <div class="summary-card">
+            <p style="font-size: 10px; color: #aaa; margin:0;">📈 အမြတ်ငွေ</p>
+            <h1 id="profit-total" style="color: #03a9f4; font-size: 14px;">0 ကျပ်</h1>
         </div>
     </div>
 
@@ -182,6 +186,7 @@
             <select id="modal-category">
                 <option value="personal">⭐ ကိုယ့်ရဲ့ စုငွေ/ရင်းနှီးငွေ</option>
                 <option value="family">🥚 မိသားစု ကြက်ဥအရောင်း</option>
+                <option value="profit">📈 ရောင်းရငွေ အမြတ်ငွေ</option>
             </select>
 
             <label style="font-size: 12px; color: #ccc; display: block; margin-top: 8px;">💰 ငွေပမာဏ (ကျပ်)</label>
@@ -234,6 +239,7 @@
 
             let totalPersonal = 0;
             let totalFamily = 0;
+            let totalProfit = 0;
 
             for (let i = 1; i <= monthObj.days; i++) {
                 const dayBox = document.createElement('div');
@@ -247,8 +253,10 @@
                     monthTrans[i].forEach(item => {
                         if (item.category === 'personal') {
                             totalPersonal += item.amount;
-                        } else {
+                        } else if (item.category === 'family') {
                             totalFamily += item.amount;
+                        } else if (item.category === 'profit') {
+                            totalProfit += item.amount;
                         }
                         if (item.note && item.note.trim() !== "") hasNote = true;
                     });
@@ -267,6 +275,7 @@
 
             document.getElementById("my-total").innerText = totalPersonal.toLocaleString() + " ကျပ်";
             document.getElementById("family-total").innerText = totalFamily.toLocaleString() + " ကျပ်";
+            document.getElementById("profit-total").innerText = totalProfit.toLocaleString() + " ကျပ်";
         }
 
         function openModal(monthKey, day) {
