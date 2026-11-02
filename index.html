@@ -94,17 +94,20 @@
             border: 1px solid #444;
             text-align: left;
         }
-        .modal-content textarea {
+        .modal-content input[type="number"], .modal-content textarea {
             width: 100%;
-            height: 80px;
             background-color: #2c2c2c;
             color: white;
             border: 1px solid #555;
             border-radius: 6px;
             padding: 8px;
-            margin-top: 10px;
+            margin-top: 8px;
             box-sizing: border-box;
+        }
+        .modal-content textarea {
+            height: 70px;
             resize: none;
+            margin-top: 10px;
         }
         .modal-buttons {
             display: flex;
@@ -126,7 +129,7 @@
 
     <div class="card">
         <h2>💰 Nono Money စုငွေစာရင်း</h2>
-        <p style="font-size: 13px; color: #aaa;">တစ်ရက် = ၁,၀၀၀ ကျပ် | ရက်ကိုနှိပ်၍ ငွေစုရန် & မှတ်စုရေးရန်</p>
+        <p style="font-size: 13px; color: #aaa;">ရက်ကိုနှိပ်၍ ငွေပမာဏ (ကြက်ဥဖိုး/စုငွေ) ထည့်သွင်းနိုင်သည်</p>
     </div>
 
     <!-- လအလိုက် ရွေးချယ်ရန် -->
@@ -139,23 +142,26 @@
 
         <h3>ယခုလ စုပြီးသား ပမာဏ</h3>
         <h1 id="total-savings" style="color: #4CAF50;">0 ကျပ်</h1>
-        <p>စုစုပေါင်း ရက်: <span id="total-days">0</span> ရက်</p>
+        <p>စုစုပေါင်း သွင်းငွေကြိမ်ရေ: <span id="total-days">0</span> ကြိမ်</p>
     </div>
 
     <div class="card">
         <h3 id="calendar-title">📅 ကယ်လင်ဒါ</h3>
-        <p style="font-size: 12px; color: #aaa;">ရက်ကွက်များကို နှိပ်၍ ငွေစုခြင်းနှင့် မှတ်စုများ (ရုံးပိတ်ရက် စသည်) ထည့်နိုင်သည်</p>
+        <p style="font-size: 12px; color: #aaa;">ရက်ကွက်များကို နှိပ်၍ ငွေပမာဏနှင့် မှတ်စုများ ထည့်နိုင်သည်</p>
         <div class="calendar-grid" id="calendar"></div>
     </div>
 
-    <!-- Note Modal Popup -->
+    <!-- Note & Amount Modal Popup -->
     <div class="modal" id="noteModal">
         <div class="modal-content">
-            <h3 id="modal-title" style="margin-top: 0; font-size: 18px;">ရက်စွဲ မှတ်စု</h3>
-            <label style="font-size: 13px; color: #ccc;">
-                <input type="checkbox" id="modal-money-checkbox"> 💰 ဤရက်တွင် ငွေ 1,000 ကျပ် စုမည်
-            </label>
-            <textarea id="modal-note-text" placeholder="ဥပမာ - ရုံးပိတ်ရက်၊ အလုပ်သွားရန် စသည်..."></textarea>
+            <h3 id="modal-title" style="margin-top: 0; font-size: 18px;">ရက်စွဲ စာရင်းသွင်းရန်</h3>
+            
+            <label style="font-size: 13px; color: #ccc;">💰 ထည့်မည့် ငွေပမာဏ (ကျပ်)</label>
+            <input type="number" id="modal-amount-input" placeholder="ဥပမာ - 1000 သို့မဟုတ် 5000">
+
+            <label style="font-size: 13px; color: #ccc; display: block; margin-top: 10px;">📝 မှတ်စု / အကြောင်းအရာ</label>
+            <textarea id="modal-note-text" placeholder="ဥပမာ - ကြက်ဥရောင်းရငွေ၊ စုငွေ..."></textarea>
+            
             <div class="modal-buttons">
                 <button class="btn-close" onclick="closeModal()">ပိတ်မည်</button>
                 <button class="btn-save" onclick="saveModalData()">သိမ်းမည်</button>
@@ -182,6 +188,7 @@
         let currentMonthIndex = parseInt(localStorage.getItem('nonoCurrentMonth')) || 0;
         let savedData = JSON.parse(localStorage.getItem('nonoMoneyData')) || {};
         let notesData = JSON.parse(localStorage.getItem('nonoNotesData')) || {};
+        let amountsData = JSON.parse(localStorage.getItem('nonoAmountsData')) || {};
 
         let activeDayForModal = null;
 
@@ -202,25 +209,26 @@
             calendarEl.innerHTML = '';
 
             let monthKey = monthObj.name;
-            if (!savedData[monthKey]) savedData[monthKey] = [];
+            if (!amountsData[monthKey]) amountsData[monthKey] = {};
             if (!notesData[monthKey]) notesData[monthKey] = {};
 
-            let currentMonthSaved = savedData[monthKey];
+            let currentMonthAmounts = amountsData[monthKey];
             let currentMonthNotes = notesData[monthKey];
 
-            let currentTotalMoney = currentMonthSaved.length * 1000;
-            let activeDaysCount = currentMonthSaved.length;
+            let currentTotalMoney = 0;
+            let activeDaysCount = 0;
 
             for (let i = 1; i <= monthObj.days; i++) {
                 const dayBox = document.createElement('div');
                 dayBox.classList.add('day-box');
                 dayBox.innerText = i;
 
-                if (currentMonthSaved.includes(i)) {
+                if (currentMonthAmounts[i] && currentMonthAmounts[i] > 0) {
                     dayBox.classList.add('saved');
+                    currentTotalMoney += currentMonthAmounts[i];
+                    activeDaysCount++;
                 }
 
-                // အကယ်၍ မှတ်စုရှိရင် အစက်လေးပြမယ်
                 if (currentMonthNotes[i] && currentMonthNotes[i].trim() !== "") {
                     dayBox.classList.add('has-note');
                 }
@@ -238,11 +246,11 @@
 
         function openModal(monthKey, day) {
             activeDayForModal = { monthKey, day };
-            const monthSaved = savedData[monthKey];
+            const monthAmounts = amountsData[monthKey] || {};
             const monthNotes = notesData[monthKey] || {};
 
             document.getElementById("modal-title").innerText = `${monthKey} လ၊ ရက်စွဲ (${day})`;
-            document.getElementById("modal-money-checkbox").checked = monthSaved.includes(day);
+            document.getElementById("modal-amount-input").value = monthAmounts[day] || "";
             document.getElementById("modal-note-text").value = monthNotes[day] || "";
 
             document.getElementById("noteModal").style.display = "flex";
@@ -256,19 +264,18 @@
             if (!activeDayForModal) return;
             const { monthKey, day } = activeDayForModal;
 
-            const isChecked = document.getElementById("modal-money-checkbox").checked;
+            const amountVal = parseFloat(document.getElementById("modal-amount-input").value) || 0;
             const noteText = document.getElementById("modal-note-text").value;
 
-            // ငွေစုစာရင်း update လုပ်ရန်
-            let monthSaved = savedData[monthKey];
-            const index = monthSaved.indexOf(day);
-            if (isChecked && index === -1) {
-                monthSaved.push(day);
-            } else if (!isChecked && index > -1) {
-                monthSaved.splice(index, 1);
+            // ငွေပမာဏ သိမ်းရန်
+            if (!amountsData[monthKey]) amountsData[monthKey] = {};
+            if (amountVal > 0) {
+                amountsData[monthKey][day] = amountVal;
+            } else {
+                delete amountsData[monthKey][day];
             }
 
-            // မှတ်စု update လုပ်ရန်
+            // မှတ်စု သိမ်းရန်
             if (!notesData[monthKey]) notesData[monthKey] = {};
             if (noteText.trim() !== "") {
                 notesData[monthKey][day] = noteText;
@@ -276,7 +283,7 @@
                 delete notesData[monthKey][day];
             }
 
-            localStorage.setItem('nonoMoneyData', JSON.stringify(savedData));
+            localStorage.setItem('nonoAmountsData', JSON.stringify(amountsData));
             localStorage.setItem('nonoNotesData', JSON.stringify(notesData));
 
             closeModal();
