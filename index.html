@@ -21,7 +21,7 @@
             border: 1px solid #2e7d32;
         }
         h2 { margin-top: 0; font-size: 20px; }
-        h1 { font-size: 26px; margin: 10px 0; }
+        h1 { font-size: 22px; margin: 8px 0; }
         
         .month-selector {
             display: flex;
@@ -40,6 +40,20 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+        }
+
+        .summary-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .summary-card {
+            flex: 1;
+            background-color: #1e1e1e;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #444;
+            text-align: center;
         }
 
         .calendar-grid {
@@ -94,20 +108,20 @@
             border: 1px solid #444;
             text-align: left;
         }
-        .modal-content input[type="number"], .modal-content textarea {
+        .modal-content select, .modal-content input[type="number"], .modal-content textarea {
             width: 100%;
             background-color: #2c2c2c;
             color: white;
             border: 1px solid #555;
             border-radius: 6px;
             padding: 8px;
-            margin-top: 8px;
+            margin-top: 6px;
             box-sizing: border-box;
         }
         .modal-content textarea {
-            height: 70px;
+            height: 60px;
             resize: none;
-            margin-top: 10px;
+            margin-top: 6px;
         }
         .modal-buttons {
             display: flex;
@@ -128,8 +142,8 @@
 <body>
 
     <div class="card">
-        <h2>💰 Nono Money စုငွေစာရင်း</h2>
-        <p style="font-size: 13px; color: #aaa;">ရက်ကိုနှိပ်၍ ငွေပမာဏ (ကြက်ဥဖိုး/စုငွေ) ထည့်သွင်းနိုင်သည်</p>
+        <h2>💰 Nono Money & Business Tracker</h2>
+        <p style="font-size: 12px; color: #aaa;">ကိုယ့်စုငွေနှင့် မိသားစု ကြက်ဥစီးပွားရေး သီးသန့်ခွဲခြားစာရင်း</p>
     </div>
 
     <!-- လအလိုက် ရွေးချယ်ရန် -->
@@ -139,28 +153,44 @@
             <h3 id="current-month-title" style="margin: 0;">January</h3>
             <button onclick="changeMonth(1)">နောက်လာမည့် ▶</button>
         </div>
+    </div>
 
-        <h3>ယခုလ စုပြီးသား ပမာဏ</h3>
-        <h1 id="total-savings" style="color: #4CAF50;">0 ကျပ်</h1>
-        <p>စုစုပေါင်း သွင်းငွေကြိမ်ရေ: <span id="total-days">0</span> ကြိမ်</p>
+    <!-- သီးသန့် စုစုပေါင်းပြရန် ကတ်ပြားများ -->
+    <div class="summary-box">
+        <div class="summary-card">
+            <p style="font-size: 12px; color: #aaa; margin:0;">⭐ ကိုယ့်စုငွေ/ရင်းနှီး</p>
+            <h1 id="my-total" style="color: #4CAF50; font-size: 18px;">0 ကျပ်</h1>
+        </div>
+        <div class="summary-card">
+            <p style="font-size: 12px; color: #aaa; margin:0;">🥚 မိသားစု ကြက်ဥငွေ</p>
+            <h1 id="family-total" style="color: #ff9800; font-size: 18px;">0 ကျပ်</h1>
+        </div>
     </div>
 
     <div class="card">
         <h3 id="calendar-title">📅 ကယ်လင်ဒါ</h3>
-        <p style="font-size: 12px; color: #aaa;">ရက်ကွက်များကို နှိပ်၍ ငွေပမာဏနှင့် မှတ်စုများ ထည့်နိုင်သည်</p>
+        <p style="font-size: 12px; color: #aaa;">ရက်ကိုနှိပ်၍ ငွေစာရင်း သီးသန့်ခွဲသွင်းပါ</p>
         <div class="calendar-grid" id="calendar"></div>
     </div>
 
     <!-- Note & Amount Modal Popup -->
     <div class="modal" id="noteModal">
         <div class="modal-content">
-            <h3 id="modal-title" style="margin-top: 0; font-size: 18px;">ရက်စွဲ စာရင်းသွင်းရန်</h3>
+            <h3 id="modal-title" style="margin-top: 0; font-size: 16px;">ရက်စွဲ စာရင်းသွင်းရန်</h3>
             
-            <label style="font-size: 13px; color: #ccc;">💰 ထည့်မည့် ငွေပမာဏ (ကျပ်)</label>
-            <input type="number" id="modal-amount-input" placeholder="ဥပမာ - 1000 သို့မဟုတ် 5000">
+            <label style="font-size: 12px; color: #ccc;">📂 အမျိုးအစား ခွဲမည်</label>
+            <select id="modal-category">
+                <option value="personal">⭐ ကိုယ့်ရဲ့ စုငွေ/ရင်းနှီးငွေ (၁ သိန်းထဲမှ)</option>
+                <option value="family_s1">🥚 ကြက်ဥ အရောင်း (ဆိုဒ် ၁)</option>
+                <option value="family_s2">🥚 ကြက်ဥ အရောင်း (ဆိုဒ် ၂)</option>
+                <option value="family_s3">🥚 ကြက်ဥ အရောင်း (ဆိုဒ် ၃)</option>
+            </select>
 
-            <label style="font-size: 13px; color: #ccc; display: block; margin-top: 10px;">📝 မှတ်စု / အကြောင်းအရာ</label>
-            <textarea id="modal-note-text" placeholder="ဥပမာ - ကြက်ဥရောင်းရငွေ၊ စုငွေ..."></textarea>
+            <label style="font-size: 12px; color: #ccc; display: block; margin-top: 8px;">💰 ငွေပမာဏ (ကျပ်)</label>
+            <input type="number" id="modal-amount-input" placeholder="ပမာဏရိုက်ထည့်ရန်">
+
+            <label style="font-size: 12px; color: #ccc; display: block; margin-top: 8px;">📝 မှတ်စု</label>
+            <textarea id="modal-note-text" placeholder="အသေးစိတ် မှတ်ချက်..."></textarea>
             
             <div class="modal-buttons">
                 <button class="btn-close" onclick="closeModal()">ပိတ်မည်</button>
@@ -171,25 +201,17 @@
 
     <script>
         const months = [
-            { name: "January", days: 31 },
-            { name: "February", days: 28 },
-            { name: "March", days: 31 },
-            { name: "April", days: 30 },
-            { name: "May", days: 31 },
-            { name: "June", days: 30 },
-            { name: "July", days: 31 },
-            { name: "August", days: 31 },
-            { name: "September", days: 30 },
-            { name: "October", days: 31 },
-            { name: "November", days: 30 },
-            { name: "December", days: 31 }
+            { name: "January", days: 31 }, { name: "February", days: 28 },
+            { name: "March", days: 31 }, { name: "April", days: 30 },
+            { name: "May", days: 31 }, { name: "June", days: 30 },
+            { name: "July", days: 31 }, { name: "August", days: 31 },
+            { name: "September", days: 30 }, { name: "October", days: 31 },
+            { name: "November", days: 30 }, { name: "December", days: 31 }
         ];
 
         let currentMonthIndex = parseInt(localStorage.getItem('nonoCurrentMonth')) || 0;
-        let savedData = JSON.parse(localStorage.getItem('nonoMoneyData')) || {};
-        let notesData = JSON.parse(localStorage.getItem('nonoNotesData')) || {};
-        let amountsData = JSON.parse(localStorage.getItem('nonoAmountsData')) || {};
-
+        // ဒေတာများကို အမျိုးအစားအလိုက် သိမ်းဆည်းရန်
+        let transactionsData = JSON.parse(localStorage.getItem('nonoTransactionsData')) || {};
         let activeDayForModal = null;
 
         function changeMonth(direction) {
@@ -209,28 +231,34 @@
             calendarEl.innerHTML = '';
 
             let monthKey = monthObj.name;
-            if (!amountsData[monthKey]) amountsData[monthKey] = {};
-            if (!notesData[monthKey]) notesData[monthKey] = {};
+            if (!transactionsData[monthKey]) transactionsData[monthKey] = {};
 
-            let currentMonthAmounts = amountsData[monthKey];
-            let currentMonthNotes = notesData[monthKey];
+            let monthTrans = transactionsData[monthKey];
 
-            let currentTotalMoney = 0;
-            let activeDaysCount = 0;
+            let totalPersonal = 0;
+            let totalFamily = 0;
 
             for (let i = 1; i <= monthObj.days; i++) {
                 const dayBox = document.createElement('div');
                 dayBox.classList.add('day-box');
                 dayBox.innerText = i;
 
-                if (currentMonthAmounts[i] && currentMonthAmounts[i] > 0) {
+                if (monthTrans[i] && monthTrans[i].length > 0) {
                     dayBox.classList.add('saved');
-                    currentTotalMoney += currentMonthAmounts[i];
-                    activeDaysCount++;
-                }
+                    
+                    let hasNote = false;
+                    monthTrans[i].forEach(item => {
+                        if (item.category === 'personal') {
+                            totalPersonal += item.amount;
+                        } else {
+                            totalFamily += item.amount;
+                        }
+                        if (item.note && item.note.trim() !== "") hasNote = true;
+                    });
 
-                if (currentMonthNotes[i] && currentMonthNotes[i].trim() !== "") {
-                    dayBox.classList.add('has-note');
+                    if (hasNote) {
+                        dayBox.classList.add('has-note');
+                    }
                 }
 
                 dayBox.onclick = function() {
@@ -240,18 +268,18 @@
                 calendarEl.appendChild(dayBox);
             }
 
-            document.getElementById("total-savings").innerText = currentTotalMoney.toLocaleString() + " ကျပ်";
-            document.getElementById("total-days").innerText = activeDaysCount;
+            document.getElementById("my-total").innerText = totalPersonal.toLocaleString() + " ကျပ်";
+            document.getElementById("family-total").innerText = totalFamily.toLocaleString() + " ကျပ်";
         }
 
         function openModal(monthKey, day) {
             activeDayForModal = { monthKey, day };
-            const monthAmounts = amountsData[monthKey] || {};
-            const monthNotes = notesData[monthKey] || {};
-
-            document.getElementById("modal-title").innerText = `${monthKey} လ၊ ရက်စွဲ (${day})`;
-            document.getElementById("modal-amount-input").value = monthAmounts[day] || "";
-            document.getElementById("modal-note-text").value = monthNotes[day] || "";
+            document.getElementById("modal-title").innerText = `${monthKey} လ၊ ရက်စွဲ (${day}) စာရင်း`;
+            
+            // ပထမဆုံး စာရင်းကိုပြရန် သို့မဟုတ် အသစ်ထည့်ရန် ရှင်းထုတ်မည်
+            document.getElementById("modal-amount-input").value = "";
+            document.getElementById("modal-note-text").value = "";
+            document.getElementById("modal-category").value = "personal";
 
             document.getElementById("noteModal").style.display = "flex";
         }
@@ -264,33 +292,31 @@
             if (!activeDayForModal) return;
             const { monthKey, day } = activeDayForModal;
 
+            const category = document.getElementById("modal-category").value;
             const amountVal = parseFloat(document.getElementById("modal-amount-input").value) || 0;
             const noteText = document.getElementById("modal-note-text").value;
 
-            // ငွေပမာဏ သိမ်းရန်
-            if (!amountsData[monthKey]) amountsData[monthKey] = {};
-            if (amountVal > 0) {
-                amountsData[monthKey][day] = amountVal;
-            } else {
-                delete amountsData[monthKey][day];
+            if (amountVal <= 0) {
+                alert("ကျေးဇူးပြု၍ ငွေပမာဏ မှန်ကန်စွာ ထည့်ပါ။");
+                return;
             }
 
-            // မှတ်စု သိမ်းရန်
-            if (!notesData[monthKey]) notesData[monthKey] = {};
-            if (noteText.trim() !== "") {
-                notesData[monthKey][day] = noteText;
-            } else {
-                delete notesData[monthKey][day];
-            }
+            if (!transactionsData[monthKey]) transactionsData[monthKey] = {};
+            if (!transactionsData[monthKey][day]) transactionsData[monthKey][day] = [];
 
-            localStorage.setItem('nonoAmountsData', JSON.stringify(amountsData));
-            localStorage.setItem('nonoNotesData', JSON.stringify(notesData));
+            // ယင်းနေ့အတွက် အသစ်ထည့်လိုက်သော ငွေစာရင်းကို သိမ်းမည်
+            transactionsData[monthKey][day].push({
+                category: category,
+                amount: amountVal,
+                note: noteText
+            });
+
+            localStorage.setItem('nonoTransactionsData', JSON.stringify(transactionsData));
 
             closeModal();
             renderCalendar();
         }
 
-        // ဖိုင်စတင်ဖွင့်လိုက်သည်နှင့် ကယ်လင်ဒါကို ဖော်ပြပေးရန်
         renderCalendar();
     </script>
 
